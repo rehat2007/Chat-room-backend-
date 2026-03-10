@@ -2,6 +2,7 @@ import { asyncHandler } from "../utils/async.Handler.js"
 import { errorHandler } from "../utils/errorHandler.js"
 import { responseHandler } from "../utils/resHandler.js"
 import { User } from "../models/user.model.js"
+import jwt from "jsonwebtoken"
 
 // Register controller :
 const registeruser = asyncHandler(async (req, res) => {
@@ -36,26 +37,40 @@ const registeruser = asyncHandler(async (req, res) => {
 // Login controller :
 const loginuser = asyncHandler(async (req, res) => {
    const { email, password } = req.body
-   
-    if ([ email, password ].some(field => field?.trim() === "")) {
+
+   if ([email, password].some(field => field?.trim() === "")) {
       throw new errorHandler(409, "All fields are required")
    }
 
    const user = await User.findOne({ email })
-   if(!user){
-      throw new errorHandler( 404 , "Email or Password is incorrect")
-   }
-   
-   isPasswordCorrect = await user.ispasswordCorrect(password)
-   if(!isPasswordCorrect){
-      throw new errorHandler(405 , " Password is incorrect ")
+   if (!user) {
+      throw new errorHandler(404, "Email or Password is incorrect")
    }
 
+   const isPasswordCorrect = await user.ispasswordCorrect(password)
+   if (!isPasswordCorrect) {
+      throw new errorHandler(405, " Password is incorrect ")
+   }
+   const token = jwt.sign({iserId : user._id},process.env.ACCESS_TOKEN_SECRET,{expiresIn:process.env.ACCESS_TOKEN_EXPIRY})
+   if (!token) {
+      throw new errorHandler(401, "Failed to generate accesstoken")
+   }
+   const loggdinUser = User.findById(user._id).select("-password -token")
+
+   const options = {
+      httpOnly: true,
+      secure: true
+   }
+   return res.status(200)
+      .cookie("token", token, options)
+      .json(new responseHandler(200 ,"User loggin successfully"))
 })
+
 
 // Logout controller :
 const logoutuser = asyncHandler(async (req, res) => {
-
+    res.clearCookie ("token")
+    return res.status(201).json(new responseHandler(201, " User logout successfully"))
 })
 
 // export all
