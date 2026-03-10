@@ -51,11 +51,11 @@ const loginuser = asyncHandler(async (req, res) => {
    if (!isPasswordCorrect) {
       throw new errorHandler(405, " Password is incorrect ")
    }
-   const token = jwt.sign({iserId : user._id},process.env.ACCESS_TOKEN_SECRET,{expiresIn:process.env.ACCESS_TOKEN_EXPIRY})
+   
+   const token = jwt.sign({ iserId: user._id }, process.env.ACCESS_TOKEN_SECRET, { expiresIn: process.env.ACCESS_TOKEN_EXPIRY })
    if (!token) {
       throw new errorHandler(401, "Failed to generate accesstoken")
    }
-   const loggdinUser = User.findById(user._id).select("-password -token")
 
    const options = {
       httpOnly: true,
@@ -63,14 +63,14 @@ const loginuser = asyncHandler(async (req, res) => {
    }
    return res.status(200)
       .cookie("token", token, options)
-      .json(new responseHandler(200 ,"User loggin successfully"))
+      .json(new responseHandler(200, "User loggin successfully"))
 })
 
 
 // Logout controller :
 const logoutuser = asyncHandler(async (req, res) => {
-    res.clearCookie ("token")
-    return res.status(201).json(new responseHandler(201, " User logout successfully"))
+   res.clearCookie("token")
+   return res.status(201).json(new responseHandler(201, " User logout successfully"))
 })
 
 // export all
