@@ -51,8 +51,8 @@ const loginuser = asyncHandler(async (req, res) => {
    if (!isPasswordCorrect) {
       throw new errorHandler(405, " Password is incorrect ")
    }
-   
-   const token = jwt.sign({ iserId: user._id }, process.env.ACCESS_TOKEN_SECRET, { expiresIn: process.env.ACCESS_TOKEN_EXPIRY })
+
+   const token = jwt.sign({ userId: user._id }, process.env.ACCESS_TOKEN_SECRET, { expiresIn: process.env.ACCESS_TOKEN_EXPIRY })
    if (!token) {
       throw new errorHandler(401, "Failed to generate accesstoken")
    }
@@ -73,5 +73,27 @@ const logoutuser = asyncHandler(async (req, res) => {
    return res.status(201).json(new responseHandler(201, " User logout successfully"))
 })
 
+//Edit profile controller :
+
+const editProfile = asyncHandler(async (req, res) => {
+   const userId = req.user._id
+   const { fullName ,bio ,location } = req.body
+      if ([fullName ,bio ,location].some(field => field?.trim() === "")) {
+      throw new errorHandler(409, "All fields are required")
+   }
+   const updatedUser = await User.findByIdAndUpdate(userId,{
+      fullName ,
+      bio ,
+      location
+   },{new:true})
+
+   if(!updatedUser){
+      throw new errorHandler(500 , "Updated user not found")
+   }
+
+   return res.status(200).json(new responseHandler(200,"Updated user informations successfully"))
+})
+
+
 // export all
-export { registeruser, loginuser, logoutuser }
+export { registeruser, loginuser, logoutuser, editProfile }

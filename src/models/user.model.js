@@ -20,6 +20,12 @@ const userSchema = new mongoose.Schema({
         required: true,
         minlength: 8,
     },
+    bio:{
+        type: String
+    },
+    location : {
+        type:String
+    }
 
 }, { timestamps: true })
 

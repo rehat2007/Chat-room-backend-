@@ -1,6 +1,6 @@
 import { Router } from "express";
-import { registeruser, loginuser, logoutuser } from "../controller/user.controller.js"
-import { editProfile } from "../controller/editprofile.controller.js";
+import { registeruser, loginuser, logoutuser, editProfile  } from "../controller/user.controller.js"
+import { protactedRoute } from "../middleware/editprofile.middleware.js"
 
 const router = Router()
 
@@ -10,8 +10,7 @@ router.route("/login").post(loginuser)
 router.route("/logout").post(logoutuser)
 
 // Edit profile route :
-router.route("/profile").post(editProfile)
-
+router.route("/profile").post(protactedRoute, editProfile)
 
 
 export default router
