@@ -3,6 +3,7 @@ import { errorHandler } from "../utils/errorHandler.js"
 import { responseHandler } from "../utils/resHandler.js"
 import { User } from "../models/user.model.js"
 import jwt from "jsonwebtoken"
+import { upsertstreamuser } from "../config/connect.streamchat.js"
 
 // Register controller :
 const registeruser = asyncHandler(async (req, res) => {
@@ -25,6 +26,17 @@ const registeruser = asyncHandler(async (req, res) => {
       email,
       password
    })
+
+try {
+      await upsertstreamuser({
+         id: newUser._id.toString(),
+         fullName: newUser.fullName,
+         email: newUser.email
+      })
+} catch (error) {
+   console.error ("faild to create user in upstream",error)
+}
+   
 
    const createdUser = await User.findById(newUser._id).select("-password")
    if (!createdUser) {
@@ -77,21 +89,32 @@ const logoutuser = asyncHandler(async (req, res) => {
 
 const editProfile = asyncHandler(async (req, res) => {
    const userId = req.user._id
-   const { fullName ,bio ,location } = req.body
-      if ([fullName ,bio ,location].some(field => field?.trim() === "")) {
+   const { fullName, bio, location } = req.body
+   if ([fullName, bio, location].some(field => field?.trim() === "")) {
       throw new errorHandler(409, "All fields are required")
    }
-   const updatedUser = await User.findByIdAndUpdate(userId,{
-      fullName ,
-      bio ,
+   const updatedUser = await User.findByIdAndUpdate(userId, {
+      fullName,
+      bio,
       location
-   },{new:true})
+   }, { new: true })
 
-   if(!updatedUser){
-      throw new errorHandler(500 , "Updated user not found")
+   try {
+      await upsertstreamuser({
+         id: updatedUser._id.toString(),
+         fullName: updatedUser.fullName,
+         bio :updatedUser.bio,
+         location :updatedUser.location
+      })
+} catch (error) {
+   console.error ("faild to update user in upstream",error)
+}
+
+   if (!updatedUser) {
+      throw new errorHandler(500, "Updated user not found")
    }
 
-   return res.status(200).json(new responseHandler(200,"Updated user informations successfully"))
+   return res.status(200).json(new responseHandler(200, "Updated user informations successfully"))
 })
 
 
