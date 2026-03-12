@@ -20,12 +20,25 @@ const userSchema = new mongoose.Schema({
         required: true,
         minlength: 8,
     },
-    bio:{
-        type: String
+    bio: {
+        type: String,
+        default: ""
     },
-    location : {
-        type:String
-    }
+    location: {
+        type: String,
+         default: ""
+    },
+    isOnboarded: {
+        type: Boolean,
+        default: false,
+    },
+    
+    friends:[
+        {
+            type:mongoose.Schema.Types.ObjectId,
+            ref:"User"
+        },
+    ],
 
 }, { timestamps: true })
 

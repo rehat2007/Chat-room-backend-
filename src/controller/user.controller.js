@@ -96,7 +96,8 @@ const editProfile = asyncHandler(async (req, res) => {
    const updatedUser = await User.findByIdAndUpdate(userId, {
       fullName,
       bio,
-      location
+      location,
+      isOnboarded : true 
    }, { new: true })
 
    try {
@@ -104,7 +105,7 @@ const editProfile = asyncHandler(async (req, res) => {
          id: updatedUser._id.toString(),
          fullName: updatedUser.fullName,
          bio :updatedUser.bio,
-         location :updatedUser.location
+         location :updatedUser.location,
       })
 } catch (error) {
    console.error ("faild to update user in upstream",error)
