@@ -2,8 +2,6 @@ import { asyncHandler } from "../utils/async.Handler.js"
 import { errorHandler } from "../utils/errorHandler.js"
 import { responseHandler } from "../utils/resHandler.js"
 import { User } from "../models/user.model.js"
-import jwt from "jsonwebtoken"
-import { upsertstreamuser } from "../config/connect.streamchat.js"
 
 // recomended users :
 const getRecommendedUsers = asyncHandler(async (req, res) => {
@@ -28,7 +26,19 @@ const getRecommendedUsers = asyncHandler(async (req, res) => {
 
 // friends :
 const getMyFriends = asyncHandler(async (req, res) => {
+   try {
+    const user = await User.findById(req.user._id).select("friends").populate("friends","fullName")
+    return res.status(200).json(new responseHandler(200,user.friends,"Get friends successfullu"))
+   } catch (error) {
+    console.error("Error on get friends controller",error)
+    return res.status(500).json(new errorHandler(500, "Get friends controller failed"))
+   }
+})
+
+// friend-request:
+const sendFriendRequest = asyncHandler(async(req,res)=>{
 
 })
 
-export { getRecommendedUsers, getMyFriends }
+
+export { getRecommendedUsers, getMyFriends, sendFriendRequest }
