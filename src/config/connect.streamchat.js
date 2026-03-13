@@ -6,19 +6,28 @@ import "dotenv/config"
 
 const client = new StreamChat("cusd6bkg2h38", "q9h8jjzjrdbcc4cug426psbzjtf39bvftge49b2g97e655t543tfgrupmgkkfym8");
 
-const upsertstreamuser = async (userdata)=>{
-try {
-    await client.upsertUser({
-        id:userdata.id,
-        name :userdata.fullName,
-        email:userdata.email,
-        bio : userdata.bio,
-        location : userdata.location
-    })
-    return userdata;
-} catch (error) {
-    console.error("Upstream connection failed",error)
-}
+const upsertstreamuser = async (userdata) => {
+    try {
+        await client.upsertUser({
+            id: userdata.id,
+            name: userdata.fullName,
+            email: userdata.email,
+            bio: userdata.bio,
+            location: userdata.location
+        })
+        return userdata;
+    } catch (error) {
+        console.error("Upstream connection failed", error)
+    }
 }
 
-export {upsertstreamuser}
+const generateStreamToken = (userId) => {
+    try {
+      const userIdStr = userId.toString();
+      return client.createToken(userIdStr)
+    } catch (error) {
+      console.error("Error generating stream token ",error)
+    }
+}
+
+export { upsertstreamuser, generateStreamToken }
